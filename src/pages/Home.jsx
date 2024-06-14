@@ -4,14 +4,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { Box, Flex, Image, Text, Input, Button, Grid, Spinner, Heading } from "@chakra-ui/react";
 
 const Home = () => {
-  const [pokemonList, setPokemonList] = useState([]);
-  const [pokemonDetails, setPokemonDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
+  const [pokemonList, setPokemonList] = useState([]); // State to store the list of Pokemon
+  const [pokemonDetails, setPokemonDetails] = useState({}); // State to store the details of each Pokemon
+  const [isLoading, setIsLoading] = useState(true); // State to track loading state
+  const [searchQuery, setSearchQuery] = useState(""); // State to store the search query
+  const [currentPage, setCurrentPage] = useState(1); // State to track the current page
+  const navigate = useNavigate(); // React Router's navigate function
 
   useEffect(() => {
+    // Fetch the list of Pokemon from the API
     const fetchPokemonList = async () => {
       try {
         const { data } = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=1000`);
@@ -26,6 +27,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch the details of each Pokemon in the list
     const fetchPokemonDetails = async () => {
       const promises = pokemonList.map(pokemon =>
         axios.get(pokemon.url).then(({ data }) => ({
@@ -49,6 +51,7 @@ const Home = () => {
   }, [pokemonList]);
 
   const handleSearchChange = (event) => {
+    // Update the search query and reset the current page
     setSearchQuery(event.target.value);
     setCurrentPage(1);
   };

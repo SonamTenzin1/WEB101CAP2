@@ -17,6 +17,7 @@ import {
 import useFavoriteStore from "../useFavoriteStore";
 
 const Favorites = () => {
+  // State variables
   const {
     favoritePokemonList,
     setFavoritePokemonList,
@@ -29,6 +30,7 @@ const Favorites = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch favorite Pokemon from local storage on component mount
   useEffect(() => {
     const fetchFavoritePokemon = async () => {
       try {
@@ -47,6 +49,7 @@ const Favorites = () => {
     fetchFavoritePokemon();
   }, [setFavoritePokemonList]);
 
+  // Fetch Pokemon details for each favorite Pokemon
   useEffect(() => {
     const fetchPokemonDetails = async () => {
       try {
@@ -77,11 +80,13 @@ const Favorites = () => {
     }
   }, [favoritePokemonList]);
 
+  // Event handler for search input change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
     setCurrentPage(1);
   };
 
+  // Event handler for removing a favorite Pokemon
   const handleRemoveFavorite = (id) => {
     removeFavoritePokemon(id);
     const updatedFavorites = favoritePokemonList.filter(
@@ -90,10 +95,12 @@ const Favorites = () => {
     localStorage.setItem("favoritePokemon", JSON.stringify(updatedFavorites));
   };
 
+  // Filter favorite Pokemon based on search query
   const filteredFavoritePokemonList = favoritePokemonList.filter((pokemon) =>
     pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Render favorite Pokemon cards
   const renderFavoritePokemons = () => {
     const pokemonsPerPage = 100;
     const startIndex = (currentPage - 1) * pokemonsPerPage;
