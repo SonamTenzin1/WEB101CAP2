@@ -102,7 +102,7 @@ const Home = () => {
   return (
     <Flex direction="column" align="center" minHeight="100vh" p={12}>
       <Box textAlign="center" mb={15}>
-        <Image src="asset\Pokédex_logo.png" alt="Pokeball" boxSize="9rem" mx="auto" />
+        <Image src="https://archives.bulbagarden.net/media/upload/4/4b/Pok%C3%A9dex_logo.png" alt="Pokelogo" boxSize="9rem" mx="auto" />
         <Heading as="h1" size="lg" mt={2}></Heading>
         <Box bg="red.500" p={2} borderRadius="md" mb={2}>
           <Button as={Link} to="/favorites" variant="link" color="white">Favorites</Button>
