@@ -1,10 +1,10 @@
-import create from 'zustand';
+import {create} from 'zustand';
 
 const useFavoriteStore = create((set) => ({
-  favoritePokemonList: [],
-  setFavoritePokemonList: (favoritePokemonList) => set({ favoritePokemonList }),
-  removeFavoritePokemon: (id) => set((state) => ({
-    favoritePokemonList: state.favoritePokemonList.filter(pokemon => pokemon.id !== id),
+  favorites: [], 
+  setFavorites: (favorites) => set({ favorites }),
+  removeFavorite: (id) => set((state) => ({
+    favorites: state.favorites.filter(pokemon => pokemon.id !== id), 
   })),
 }));
 

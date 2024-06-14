@@ -3,23 +3,25 @@ import axios from "axios";
 import HomeForm from "./Home";
 
 const HomePage = () => {
-  const [pokemonList, setPokemonList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pokemonData, setPokemonData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPokemonList = async () => {
+    const fetchPokemonData = async () => {
       try {
-        const response = await axios.get("https://pokeapi.co/api/v2/pokemon/ditto");
-        setPokemonList([response.data]);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
+        const { data } = await axios.get("https://pokeapi.co/api/v2/pokemon/ditto");
+        setPokemonData([data]);
+      } catch (error) {
+        console.error("Error fetching Pokemon data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchPokemonList();
+
+    fetchPokemonData();
   }, []);
 
-  return <HomeForm pokemonList={pokemonList} loading={loading} />;
+  return <HomeForm pokemonList={pokemonData} loading={isLoading} />;
 };
 
 export default HomePage;

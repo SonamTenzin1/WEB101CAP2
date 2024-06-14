@@ -1,15 +1,32 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { Box, Flex, Image, Text, Input, Button, Spinner, Heading, Grid } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Image,
+  Text,
+  Input,
+  Button,
+  Spinner,
+  Heading,
+  Grid,
+  Alert,
+  AlertIcon,
+} from "@chakra-ui/react";
 import useFavoriteStore from "../useFavoriteStore";
 
 const Favorites = () => {
-  const { favoritePokemonList, setFavoritePokemonList, removeFavoritePokemon } = useFavoriteStore();
+  const {
+    favoritePokemonList,
+    setFavoritePokemonList,
+    removeFavoritePokemon,
+  } = useFavoriteStore();
   const [pokemonDetails, setPokemonDetails] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,10 +37,11 @@ const Favorites = () => {
           const favoriteList = JSON.parse(favoritesFromStorage);
           setFavoritePokemonList(favoriteList);
         }
-        setLoading(false);
       } catch (error) {
-        setLoading(false);
+        setErrorMessage("Error fetching favorites. Please try again.");
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchFavoritePokemon();
@@ -31,20 +49,27 @@ const Favorites = () => {
 
   useEffect(() => {
     const fetchPokemonDetails = async () => {
-      const promises = favoritePokemonList.map((pokemon) =>
-        axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.id}`).then((res) => ({
-          name: pokemon.name,
-          weight: res.data.weight / 10,
-          height: res.data.height / 10,
-          id: res.data.id,
-        }))
-      );
-      const details = await Promise.all(promises);
-      const detailsMap = {};
-      details.forEach((detail) => {
-        detailsMap[detail.name] = detail;
-      });
-      setPokemonDetails(detailsMap);
+      try {
+        const promises = favoritePokemonList.map((pokemon) =>
+          axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.id}`).then((res) => ({
+            name: pokemon.name,
+            weight: res.data.weight / 10,
+            height: res.data.height / 10,
+            id: res.data.id,
+          }))
+        );
+        const details = await Promise.all(promises);
+        const detailsMap = details.reduce((acc, detail) => {
+          acc[detail.name] = detail;
+          return acc;
+        }, {});
+        setPokemonDetails(detailsMap);
+      } catch (error) {
+        setErrorMessage("Error fetching Pokémon details. Please try again.");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     if (favoritePokemonList.length) {
@@ -59,8 +84,10 @@ const Favorites = () => {
 
   const handleRemoveFavorite = (id) => {
     removeFavoritePokemon(id);
-    const updatedFavorites = favoritePokemonList.filter((pokemon) => pokemon.id !== id);
-    localStorage.setItem('favoritePokemon', JSON.stringify(updatedFavorites));
+    const updatedFavorites = favoritePokemonList.filter(
+      (pokemon) => pokemon.id !== id
+    );
+    localStorage.setItem("favoritePokemon", JSON.stringify(updatedFavorites));
   };
 
   const filteredFavoritePokemonList = favoritePokemonList.filter((pokemon) =>
@@ -127,10 +154,15 @@ const Favorites = () => {
       <Input
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder="Search Pokémon..."
+        placeholder="Search for Pokémon Here"
         mb={4}
       />
-      {loading ? (
+      {errorMessage ? (
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          {errorMessage}
+        </Alert>
+      ) : isLoading ? (
         <Flex justify="center" align="center" height="50vh">
           <Spinner size="xl" />
         </Flex>
@@ -140,11 +172,17 @@ const Favorites = () => {
             {renderFavoritePokemons()}
           </Grid>
           <Flex mt={4}>
-            <Button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+            <Button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
               Previous
             </Button>
             <Text mx={4}>{currentPage}</Text>
-            <Button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage * 100 >= filteredFavoritePokemonList.length}>
+            <Button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage * 100 >= filteredFavoritePokemonList.length}
+            >
               Next
             </Button>
           </Flex>

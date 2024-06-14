@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -8,7 +7,7 @@ import useFavoriteStore from '../useFavoriteStore';
 const PokemonDetails = () => {
   const { id } = useParams();
   const [pokemonDetails, setPokemonDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAllMoves, setShowAllMoves] = useState(false);
   const navigate = useNavigate();
   const { favoritePokemonList } = useFavoriteStore();
@@ -16,12 +15,12 @@ const PokemonDetails = () => {
   useEffect(() => {
     const fetchPokemonDetails = async () => {
       try {
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        setPokemonDetails(response.data);
+        const { data } = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        setPokemonDetails(data);
       } catch (error) {
         console.error('Error fetching Pokémon details:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -30,10 +29,7 @@ const PokemonDetails = () => {
 
   const handleAddToFavorites = () => {
     const favoritesFromStorage = localStorage.getItem('favoritePokemon');
-    let favoriteList = [];
-    if (favoritesFromStorage) {
-      favoriteList = JSON.parse(favoritesFromStorage);
-    }
+    const favoriteList = favoritesFromStorage ? JSON.parse(favoritesFromStorage) : [];
     const isAlreadyFavorite = favoriteList.some((pokemon) => pokemon.id === pokemonDetails.id);
 
     if (!isAlreadyFavorite) {
@@ -49,7 +45,7 @@ const PokemonDetails = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <Spinner />;
   }
 
@@ -57,7 +53,7 @@ const PokemonDetails = () => {
     return <Text>Error loading Pokémon details.</Text>;
   }
 
-  const movesToShow = showAllMoves ? pokemonDetails.moves : pokemonDetails.moves.slice(0, 10);
+  const displayedMoves = showAllMoves ? pokemonDetails.moves : pokemonDetails.moves.slice(0, 10);
 
   return (
     <Flex direction="column" alignItems="center">
@@ -89,7 +85,7 @@ const PokemonDetails = () => {
         </Box>
         <Box flex="1" textAlign="center">
           <Heading as="h2" size="lg">Moves</Heading>
-          {movesToShow.map((move) => (
+          {displayedMoves.map((move) => (
             <Box key={move.move.name} textAlign="left">
               <Text fontWeight="bold">{move.move.name}</Text>
               <Divider my={2} />

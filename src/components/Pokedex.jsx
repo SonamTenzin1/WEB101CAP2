@@ -3,40 +3,40 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Pokedex = () => {
-  const [pokemon, setPokemon] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [pokemonData, setPokemonData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    const fetchPokemon = async () => {
+    const fetchPokemonData = async () => {
       try {
-        const response = await axios.get("https://pokeapi.co/api/v2/pokemon/ditto");
-        setPokemon(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err);
-        setLoading(false);
+        const { data } = await axios.get("https://pokeapi.co/api/v2/pokemon/ditto");
+        setPokemonData(data);
+      } catch (error) {
+        setErrorMessage("Error fetching Pokémon data");
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchPokemon();
+    fetchPokemonData();
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return <Spinner size="xl" />;
   }
 
-  if (error) {
-    return <Text>Error fetching data</Text>;
+  if (errorMessage) {
+    return <Text>{errorMessage}</Text>;
   }
 
   return (
-    <VStack>
-      <Heading>{pokemon.name.toUpperCase()}</Heading>
-      <Image src={pokemon.sprites.front_default} alt={pokemon.name} />
-      <Box>
-        <Text><strong>Height:</strong> {pokemon.height}</Text>
-        <Text><strong>Weight:</strong> {pokemon.weight}</Text>
-        <Text><strong>Base Experience:</strong> {pokemon.base_experience}</Text>
+    <VStack spacing={4}>
+      <Heading>{pokemonData.name.toUpperCase()}</Heading>
+      <Image src={pokemonData.sprites.front_default} alt={pokemonData.name} />
+      <Box textAlign="center">
+        <Text><strong>Height:</strong> {pokemonData.height}</Text>
+        <Text><strong>Weight:</strong> {pokemonData.weight}</Text>
+        <Text><strong>Base Experience:</strong> {pokemonData.base_experience}</Text>
       </Box>
     </VStack>
   );
